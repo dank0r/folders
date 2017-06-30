@@ -1,0 +1,56 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Roboto";
+}
+
+a {
+    text-decoration: none;
+    color: deepskyblue;
+    text-decoration: underline;
+}
+a:hover {
+    transition: 0.1s;
+    color: red;
+    text-decoration: none;
+}
+
+.buttons {
+    text-align: right;
+    position: absolute;
+    right: 10px;
+}
+
+.button {
+    width: 50px !important;
+}
+
+.rotation {
+    transition: 1s;
+    font-size: 30pt;
+    cursor: pointer;
+}
+.rotation:hover {
+    transition: 1s;
+    transform: scale(1.5);
+    color: red;
+}
+
+.scrolling {
+    position: relative;
+    top: 0px;
+    right: 0px;
+    height: auto;
+    max-height: 87vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 10px;
+}
+.scrolling2 {
+    position: relative;
+    top: 0px;
+    right: 0px;
+    height: auto;
+    max-height: 87vh;
+    overflow-y: auto;
+}
