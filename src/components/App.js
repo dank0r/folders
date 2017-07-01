@@ -77,41 +77,40 @@ const App = () => (
           <tr style={style}>
             <td style={td1}>
               <span>
-              <Switch>
-                <Route
-                  exact
-                  path="/open/:id"
-                  render={({ match }) => (<FileSystem opened={parseInt(match.params.id, 10)} />)}
-                />
-                <Route
-                  path="/"
-                  render={() => (<FileSystem opened={0} />)}
-                />
-              </Switch>
-                </span>
+                <Switch>
+                  <Route
+                    exact
+                    path="/open/:id"
+                    render={({ match }) => (<FileSystem opened={parseInt(match.params.id, 10)} />)}
+                  />
+                  <Route
+                    path="/"
+                    render={() => (<FileSystem opened={0} />)}
+                  />
+                </Switch>
+              </span>
             </td>
             <td style={td2}>
               <Switch>
                 <Route
                   exact
                   path="/search/:type/:q"
-                  render={({ match }) => {
-                    //let type = 1;
-                    //if (match.params.type === 'names') type = 1;
-                    //if (match.params.type === 'tags') type = 2;
-                    //if (match.params.type === 'text') type = 3;
-                    //if (match.params.type === 'deep') type = 4;
-                    return (<Search
-                    key={match.path.length}
-                    initialValues={{ query: match.params.q, type: match.params.type }} />);
-                  }}
+                  render={({ match }) => (
+                    <Search
+                      key={match.path.length}
+                      initialValues={{ query: match.params.q, type: match.params.type }}
+                    />
+                  )
+                  }
                 />
                 <Route
                   path="/"
-                  render={({ match }) => (<Search
-                  key={match.path.length}
-                  initialValues={{ query: '', type: 'names' }}
-                  />)}
+                  render={({ match }) => (
+                    <Search
+                      key={match.path.length}
+                      initialValues={{ query: '', type: 'names' }}
+                    />
+                  )}
                 />
               </Switch>
               <Switch>
@@ -122,7 +121,7 @@ const App = () => (
                   exact
                   path="/search/:type/:q"
                   render={({ match }) => (
-                  <SearchResults q={match.params.q} type={match.params.type} />
+                    <SearchResults q={match.params.q} type={match.params.type} />
                   )}
                 />
                 <Route spath="/" render={() => (<Welcome />)} />
