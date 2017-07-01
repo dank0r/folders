@@ -49,7 +49,7 @@ const renderSelectField = ({ input, value, label, meta: { touched, error }, chil
     onChange={(event, index, value) => input.onChange(value)}
     {...custom}
     value={value}
-  >
+    >
     {children}
   </DropDownMenu>
 );
@@ -68,18 +68,18 @@ class renderTags extends Component {
     const { value, onChange } = input;
     return (
       <span>
-                <span style={wrapper}>
-                {
-                  value.map(tag => (
-                    <Chip
-                      onRequestDelete={() => { onChange(value.filter(t => t !== tag)); }}
-                      onTouchTap={() => { history.push(`/search/tags/${tag}`); }}
-                      style={{ margin: 4 }}
-                      >
-                      {tag}
-                    </Chip>
-                  ))
-                }
+        <span style={wrapper}>
+        {
+        value.map(tag => (
+        <Chip
+          onRequestDelete={() => { onChange(value.filter(t => t !== tag)); }}
+          onTouchTap={() => { history.push(`/search/tags/${tag}`); }}
+          style={{ margin: 4 }}
+        >
+        {tag}
+        </Chip>
+        ))
+        }
                 </span>
         <Field
           name="tagsField"
@@ -114,7 +114,7 @@ class CreatePage extends Component {
   render() {
     console.log('props.data: ', this.props.data);
     const { id, dispatch, history, files } = this.props;
-      const { handleSubmit, pristine, invalid, reset, input, submitting, name } = this.props;
+    const { handleSubmit, pristine, invalid, reset, input, submitting, name } = this.props;
     console.log('name: ', name);
     if (files.filter(f => (f.id === id && f.kind === 'folder')).length > 0) {
       return (
@@ -126,19 +126,19 @@ class CreatePage extends Component {
               component={SelectField}
               floatingLabelText="Type"
               style={{ width: 200 }}
-            >
+              >
               <MenuItem value="folder" primaryText="Folder" />
               <MenuItem value="note" primaryText="Note" />
             </Field>
-          <br />
+            <br />
             <Field
               name="name"
               floatingLabelText="Name"
               component={renderTextField}
-            />
+              />
             <br />
-          { this.props.data.type === 'note' ?
-            <span>
+            { this.props.data.type === 'note' ?
+              <span>
 
             <Field
               name="tags"
@@ -158,8 +158,8 @@ class CreatePage extends Component {
                 component={TextField}
                 /><br />
               </span>
-            : null
-          }
+              : null
+            }
             <FlatButton
               label="Save"
               primary
