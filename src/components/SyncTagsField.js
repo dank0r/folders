@@ -1,28 +1,25 @@
 import React, { Component } from 'react';
-import { Field, reduxForm, submit, formValueSelector, reset } from 'redux-form';
+import PropTypes from 'prop-types';
+import { Field, reduxForm, submit, reset } from 'redux-form';
 import TextField from 'material-ui/TextField';
-import Chip from 'material-ui/Chip';
-import { connect } from 'react-redux';
-import { editFile } from '../actions';
 
 const validate = (value, props) => {
   const errors = {};
-  if (props.file.tags.some(t => t === value.tag))
+  if (props.file.tags.some(t => t === value.tag)) {
     errors.tag = 'This tag already exists';
+  }
   return errors;
 };
 
-const renderTextField = ({ input, meta: { error }, ...custom, floatingLabelText, onKeyPress }) => {
-  return (
-    <TextField
-      floatingLabelText={floatingLabelText}
-      errorText={error}
-      onKeyPress={onKeyPress}
-      {...input}
-      {...custom}
-      />
-  );
-};
+const renderTextField = ({ input, meta: { error }, ...custom, floatingLabelText, onKeyPress }) => (
+  <TextField
+    floatingLabelText={floatingLabelText}
+    errorText={error}
+    onKeyPress={onKeyPress}
+    {...input}
+    {...custom}
+  />
+);
 
 class SyncTagsField extends Component {
   constructor(props) {
@@ -31,18 +28,8 @@ class SyncTagsField extends Component {
 
     };
   }
-  handleRequestDelete(tag, file) {
-    this.setState({ tags: this.state.tags.filter(t => t!==tag) });
-    this.props.dispatch(editFile(
-      file.id, this.state.name, this.state.contain, this.state.tags.filter(t => t !== tag)
-    ));
-  }
-
-  handleTouchTap(tag) {
-    this.props.history.push(`/search/tags/${tag}`);
-  }
   render() {
-    const { file, dispatch, handleSubmit, invalid, pristine, resetForm } = this.props;
+    const { dispatch, invalid, pristine } = this.props;
     return (
       <form onSubmit={(e) => { e.preventDefault(); }}>
         <Field
@@ -56,11 +43,26 @@ class SyncTagsField extends Component {
               dispatch(submit('tagsField'));
             }
           }}
-          />
+        />
       </form>
     );
   }
 }
+
+renderTextField.propTypes = {
+  input: PropTypes.shape({}).isRequired,
+  meta: PropTypes.shape({
+    error: PropTypes.string.isRequired,
+  }).isRequired,
+  floatingLabelText: PropTypes.string.isRequired,
+  onKeyPress: PropTypes.func.isRequired,
+};
+
+SyncTagsField.propTypes = {
+  dispatch: PropTypes.func.isRequired,
+  invalid: PropTypes.bool.isRequired,
+  pristine: PropTypes.bool.isRequired,
+};
 
 export default reduxForm({
   form: 'tagsField',

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { DragSource, DropTarget } from 'react-dnd';
 import IconButton from 'material-ui/IconButton';
@@ -7,42 +8,37 @@ import Edit from './Edit';
 import { addFile, toggleVisibility, removeFileForDnD, removeFile, newEditing, editFile as edit } from '../actions';
 import { note, openFolder, closeFolder, emptyFolder, createFile, deleteFile, editFile } from '../images';
 
-function str_size(text, fontfamily, fontsize) {
-  var str = document.createTextNode(text);
-  var str_size = Array();
-  var obj = document.createElement('A');
-  obj.style.fontSize = fontsize + 'pt';
+function strSize(text, fontfamily, fontsize) {
+  const str = document.createTextNode(text);
+  const size = [];
+  const obj = document.createElement('A');
+  obj.style.fontSize = `${fontsize}pt`;
   obj.style.fontFamily = fontfamily;
-  obj.style.margin = 0 + 'px';
-  obj.style.padding = 0 + 'px';
+  obj.style.margin = '0px';
+  obj.style.padding = '0px';
   obj.appendChild(str);
   document.body.appendChild(obj);
-  str_size[0] = obj.offsetWidth;
-  str_size[1] = obj.offsetHeight;
+  size[0] = obj.offsetWidth;
+  size[1] = obj.offsetHeight;
   document.body.removeChild(obj);
-  //alert(str_size[0] + "px");
-  return str_size[0];
+  return size[0];
 }
 
-const cut = (value) => {
-  return str_size(value, 'Roboto', 20) > 142 ? cut(value.substring(0, value.length-1)) : `${value}...`;
-  //return 123;
-};
+const cut = value => (strSize(value, 'Roboto', 20) > 142 ? cut(value.substring(0, value.length - 1)) : `${value}...`);
 
 const children = (files, id) => (
   files.filter(f => f.parentID === id)
     .reduce((prev, curr) => {
-      if(files.filter(f => f.parentID === curr.id).length === 0)
+      if (files.filter(f => f.parentID === curr.id).length === 0) {
         return prev.concat(curr.id);
-      else
-        return prev.concat(curr.id).concat(children(files, curr.id));
+      }
+      return prev.concat(curr.id).concat(children(files, curr.id));
     }, [])
 );
 
 const isAllowed = (files, fromID, to) => {
   const from = files.find(i => i.id === fromID);
   if (from.kind === 'folder') {
-    console.log('children(files, fromID): ', children(files, fromID));
     return (!children(files, fromID).some(item => item === to.id) && fromID !== to.id);
   }
   return true;
@@ -57,10 +53,7 @@ const fileSource = {
     const dropResult = monitor.getDropResult();
     const { files, dispatch } = props;
     if (dropResult) {
-      console.log(`You dropped ${dragItem.id} into ${dropResult.id}`);
-      console.log('isAllowed(files, from, item): ', isAllowed(files, dragItem.id, dropResult));
       if (dropResult.kind === 'folder' && isAllowed(files, dragItem.id, dropResult)) {
-        console.log('files1: ', files);
         dispatch(removeFileForDnD(dragItem.id));
         dispatch(addFile(
           dropResult.id,
@@ -70,8 +63,6 @@ const fileSource = {
           dragItem.contain,
           parseInt(dragItem.id, 10),
         ));
-      } else {
-        alert('It`s not allowed');
       }
     }
   },
@@ -81,9 +72,8 @@ const fileTarget = {
   canDrop(props, monitor) {
     return props.f.kind === 'folder' && isAllowed(props.files, monitor.getItem().id, props.f);
   },
-  hover(props, monitor) {
-    const { f } = props;
-    return f;
+  hover(props) {
+    return props.f;
   },
   drop(props) {
     return props.f;
@@ -99,7 +89,6 @@ function collectSource(connect, monitor) {
 }
 
 function collectTarget(connect, monitor) {
-  const isNull = monitor.getDropResult() === null;
   return {
     connectDropTarget: connect.dropTarget(),
     canDrop: monitor.canDrop(),
@@ -153,18 +142,38 @@ class File extends Component {
   }
 
   renderStyles(isOver, canDrop, dragItem, files, file) {
-    return isOver && canDrop ?
-      files.filter(f => f.parentID === file.id).find(f => f.name === dragItem.name && f.kind === dragItem.kind && f.id !== dragItem.id) ?
-        'red' : 'grey'
-      : 'white';
+    if (isOver && canDrop) {
+      if (files.filter(
+            f => f.parentID === file.id)
+          .find(f => f.name === dragItem.name
+          && f.kind === dragItem.kind
+          && f.id !== dragItem.id)) {
+        return 'red';
+      }
+      return 'grey';
+    }
+    return 'white';
   }
 
   render() {
-    const { f, files, space, dispatch, opened, editing, connectDragSource, connectDropTarget, isDragging, canDrop, isOver, dragItem } = this.props;
+    const {
+      f,
+      files,
+      space,
+      dispatch,
+      opened,
+      editing,
+      connectDragSource,
+      connectDropTarget,
+      isDragging,
+      canDrop,
+      isOver,
+      dragItem,
+      } = this.props;
     return connectDragSource(connectDropTarget(
       <div
         onMouseOver={this.mouseOver}
-        onMouseLeave={this.mouseOut}
+        onMouseOut={this.mouseOut}
         style={{
           transition: '0.1s',
           width: '100%',
@@ -175,78 +184,116 @@ class File extends Component {
           cursor: 'move',
           border: `1px dashed ${this.renderStyles(isOver, canDrop, dragItem, files, f)}`,
         }}
-        >
+      >
         <span
           style={{
             display: 'flex',
             alignItems: 'center',
           }}
-          >
+        >
           <span role="presentation" style={style} onClick={() => { dispatch(toggleVisibility(f.id)); }}>{space}
-            <a href="#">{icons(files, f)}</a>
+            <span style={{ cursor: 'pointer' }}>{icons(files, f)}</span>
           </span>
           {
             f.id !== editing ?
               <span style={{
-              display: 'flex',
-              alignItems: 'center',
-            }}>
-          <span style={style}>
-            {f.id !== opened ?
-              <Link to={f.kind === 'note' ? `/edit/${f.id}` : `/open/${f.id}`}>{
-                str_size(f.name, 'Roboto', 20) > 142 ? cut(f.name) : f.name
-              }</Link>
-              : str_size(f.name, 'Roboto', 20) > 142 ? cut(f.name) : f.name
-            }
-          </span>
-
-          <span
-            className="buttons"
-            onMouseOut={this.mouseOut}
-            style={{ opacity: this.state.opacity, transition: '0.2s' }}
-            >
-            {f.kind === 'folder' ?
-              <span>
-              <IconButton
-                tooltip="Edit"
-                tooltipPosition="bottom-left"
-                style={{ width: '30px', height: '30px', cursor: 'pointer' }}
-                onClick={() => { dispatch(newEditing(f.id)); }}
-                >
-                {editFile}
-              </IconButton>
-              <Link to={`/create/${f.id}`}>
-                <IconButton tooltip="Add File" tooltipPosition="bottom-left" style={{ width: '30px', height: '30px' }}>
-                  {createFile}
-                </IconButton>
-              </Link>
-                </span>
-              : null
-            }
-            <IconButton
-              tooltip="Delete"
-              tooltipPosition="bottom-left"
-              onClick={() => { dispatch(removeFile(f.id)); }}
-              style={{ width: '30px', height: '30px' }}
+                display: 'flex',
+                alignItems: 'center',
+              }}
               >
-              {deleteFile}
-            </IconButton>
-          </span>
-          </span>
+                <span style={style}>
+                  {f.id !== opened ?
+                    <Link to={f.kind === 'note' ? `/edit/${f.id}` : `/open/${f.id}`}>
+                      {
+                        strSize(f.name, 'Roboto', 20) > 142 ? cut(f.name) : f.name
+                      }
+                    </Link>
+                  : strSize(f.name, 'Roboto', 20) > 142 ? cut(f.name) : f.name
+                  }
+                </span>
+
+                <span
+                  className="buttons"
+                  onMouseOut={this.mouseOut}
+                  style={{ opacity: this.state.opacity, transition: '0.2s' }}
+                >
+                  {f.kind === 'folder' ?
+                    <span>
+                      <IconButton
+                        tooltip="Edit"
+                        tooltipPosition="bottom-left"
+                        style={{ width: '30px', height: '30px', cursor: 'pointer' }}
+                        onClick={() => { dispatch(newEditing(f.id)); }}
+                      >
+                        {editFile}
+                      </IconButton>
+                      <Link to={`/create/${f.id}`}>
+                        <IconButton tooltip="Add File" tooltipPosition="bottom-left" style={{ width: '30px', height: '30px' }}>
+                          {createFile}
+                        </IconButton>
+                      </Link>
+                    </span>
+                    : null
+                  }
+                  <IconButton
+                    tooltip="Delete"
+                    tooltipPosition="bottom-left"
+                    onClick={() => { dispatch(removeFile(f.id)); }}
+                    style={{ width: '30px', height: '30px' }}
+                  >
+                    {deleteFile}
+                  </IconButton>
+                </span>
+              </span>
               :
               <Edit
                 files={files}
                 f={f}
                 dispatch={dispatch}
-                onSubmit={(data) => { dispatch(edit(f.id, data.name, f.contain, f.tags)); dispatch(newEditing(null)); }}
+                onSubmit={(data) => {
+                  dispatch(edit(f.id, data.name, f.contain, f.tags));
+                  dispatch(newEditing(null));
+                }}
                 initialValues={{ name: f.name }}
-                />
+              />
           }
-          </span>
-      </div>
+        </span>
+      </div>,
     ));
   }
 }
+
+File.propTypes = {
+  f: PropTypes.shape({
+    name: PropTypes.string,
+    id: PropTypes.number,
+    parentID: PropTypes.number,
+    visible: PropTypes.bool,
+    kind: PropTypes.string,
+    contain: PropTypes.string,
+    tags: PropTypes.array,
+  }).isRequired,
+  files: PropTypes.arrayOf(PropTypes.object).isRequired,
+  space: PropTypes.string.isRequired,
+  dispatch: PropTypes.func.isRequired,
+  opened: PropTypes.bool.isRequired,
+  editing: PropTypes.bool.isRequired,
+  connectDragSource: PropTypes.func.isRequired,
+  connectDropTarget: PropTypes.func.isRequired,
+  connectDragPreview: PropTypes.func.isRequired,
+  isDragging: PropTypes.bool.isRequired,
+  canDrop: PropTypes.bool.isRequired,
+  isOver: PropTypes.bool.isRequired,
+  dragItem: PropTypes.shape({
+    name: PropTypes.string,
+    id: PropTypes.number,
+    parentID: PropTypes.number,
+    visible: PropTypes.bool,
+    kind: PropTypes.string,
+    contain: PropTypes.string,
+    tags: PropTypes.array,
+  }).isRequired,
+};
 
 export default flow(
   DragSource('dnd', fileSource, collectSource),

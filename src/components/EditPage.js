@@ -1,10 +1,8 @@
 import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { Field, reduxForm, submit, formValueSelector } from 'redux-form';
 import TextField from 'material-ui/TextField';
 import Chip from 'material-ui/Chip';
-import Snackbar from 'material-ui/Snackbar';
 import { editFile } from '../actions';
 import SyncNameField from './SyncNameField';
 import SyncTagsField from './SyncTagsField';
@@ -25,7 +23,6 @@ class EditPage extends Component {
       tagField: '',
       errorText: undefined,
       node: undefined,
-      errorBar: false,
     };
     this.handleTouchTap = this.handleTouchTap.bind(this);
     this.handleRequestDelete = this.handleRequestDelete.bind(this);
@@ -34,10 +31,10 @@ class EditPage extends Component {
   }
 
   handleRequestDelete(tag, file) {
-    this.setState({ tags: this.state.tags.filter(t => t!==tag) });
+    this.setState({ tags: this.state.tags.filter(t => t !== tag) });
     this.props.dispatch(editFile(
-      file.id, this.state.name, this.state.contain, this.state.tags.filter(t => t !== tag)
-    ));
+        file.id, this.state.name, this.state.contain, this.state.tags.filter(t => t !== tag),
+      ));
   }
 
   handleTouchTap(tag) {
@@ -53,34 +50,34 @@ class EditPage extends Component {
   }
 
   render() {
-    const { file, dispatch, files, invalid } = this.props;
+    const { file, dispatch, files } = this.props;
     if (files.filter(f => f === file).length > 0) {
       return (
         <form onSubmit={(e) => { e.preventDefault(); }}>
-        <div>
+          <div>
             <span style={{ fontSize: 30 }}>EDIT</span><br /><br /><br />
             ID: {file.id}<br />
             Type: {file.kind}<br />
             <SyncNameField
               onSubmit={(data) => {
-              dispatch(editFile(file.id, data.name, this.state.contain, this.state.tags));
-              this.setState({ name: data.name });
+                dispatch(editFile(file.id, data.name, this.state.contain, this.state.tags));
+                this.setState({ name: data.name });
               }}
               dispatch={dispatch}
               initialValues={{ name: file.name }}
               files={files}
               file={file}
-              /><br />
+            /><br />
             { file.kind === 'note' ?
               <span>
                 <span style={wrapper}>
-                {
+                  {
                   file.tags.map(tag => (
                     <Chip
                       onRequestDelete={() => { this.handleRequestDelete(tag, file); }}
                       onTouchTap={() => { this.handleTouchTap(tag); }}
                       style={{ margin: 4 }}
-                      >
+                    >
                       {tag}
                     </Chip>
                   ))
@@ -92,14 +89,11 @@ class EditPage extends Component {
                   dispatch={dispatch}
                   initialValues={{ tag: '' }}
                   onSubmit={(data) => {
-                    dispatch(editFile(file.id, file.name, file.contain, file.tags.concat(data.tag)));
+                    dispatch(
+                    editFile(file.id, file.name, file.contain, file.tags.concat(data.tag)),
+                    );
                   }}
-                  />
-                <Snackbar
-                  open={this.state.errorBar}
-                  message={<span style={{ display: 'flex', justifyContent: 'space-around' }}>File already has this tag</span>}
-                  onRequestClose={() => { this.setState({ errorBar: false }); }}
-                  />
+                />
                 <br />
                 <TextField
                   floatingLabelText="Text"
@@ -111,12 +105,12 @@ class EditPage extends Component {
                     this.setState({ contain: e.target.value });
                     dispatch(editFile(file.id, file.name, e.target.value, file.tags));
                   }}
-                  /><br />
+                /><br />
               </span>
               : null
             }
-        </div>
-          </form>
+          </div>
+        </form>
       );
     }
     return (<div>Error! Wrong URL.</div>);
@@ -139,7 +133,5 @@ EditPage.propTypes = {
   }).isRequired,
   files: PropTypes.arrayOf(PropTypes.object).isRequired,
 };
-
-//export default withRouter(EditPage);
 
 export default withRouter(EditPage);

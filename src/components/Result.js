@@ -22,49 +22,45 @@ const paper = {
   cursor: 'move',
 };
 
-function str_size(text, fontfamily, fontsize) {
-  var str = document.createTextNode(text);
-  var str_size = Array();
-  var obj = document.createElement('A');
-  obj.style.fontSize = fontsize + 'pt';
+function strSize(text, fontfamily, fontsize) {
+  const str = document.createTextNode(text);
+  const size = [];
+  const obj = document.createElement('A');
+  obj.style.fontSize = `${fontsize}pt`;
   obj.style.fontFamily = fontfamily;
-  obj.style.margin = 0 + 'px';
-  obj.style.padding = 0 + 'px';
+  obj.style.margin = '0px';
+  obj.style.padding = '0px';
   obj.appendChild(str);
   document.body.appendChild(obj);
-  str_size[0] = obj.offsetWidth;
-  str_size[1] = obj.offsetHeight;
+  size[0] = obj.offsetWidth;
+  size[1] = obj.offsetHeight;
   document.body.removeChild(obj);
-  //alert(str_size[0] + "px");
-  return str_size[0];
+  return size[0];
 }
 
-const cut = (value) => {
-  return str_size(value, 'Roboto', 20) > 142 ? cut(value.substring(0, value.length-1)) : `${value}...`;
-  //return 123;
-};
+const cut = value => (strSize(value, 'Roboto', 20) > 142 ? cut(value.substring(0, value.length - 1)) : `${value}...`);
+
 
 const children = (files, id) => (
   files.filter(f => f.parentID === id)
   .reduce((prev, curr) => {
-      if(files.filter(f => f.parentID === curr.id).length === 0)
+    if (files.filter(f => f.parentID === curr.id).length === 0) {
       return prev.concat(curr.id);
-      else
-      return prev.concat(curr.id).concat(children(files, curr.id));
-    }, [])
+    }
+    return prev.concat(curr.id).concat(children(files, curr.id));
+  }, [])
 );
 
 const isAllowed = (files, fromID, to) => {
   const from = files.find(i => i.id === fromID);
   if (from.kind === 'folder') {
-    console.log('children(files, fromID): ', children(files, fromID));
     return (!children(files, fromID).some(item => item === to.id) && fromID !== to.id);
   }
   return true;
 };
 
 const folderSource = {
-  beginDrag(props, monitor) {
+  beginDrag(props) {
     return props.item;
   },
   endDrag(props, monitor) {
@@ -72,10 +68,7 @@ const folderSource = {
     const dropResult = monitor.getDropResult();
     const { files, dispatch } = props;
     if (dropResult) {
-      console.log(`You dropped ${dragItem.id} into ${dropResult.id}`);
-      console.log('isAllowed(files, from, item): ', isAllowed(files, dragItem.id, dropResult));
       if (dropResult.kind === 'folder' && isAllowed(files, dragItem.id, dropResult)) {
-        console.log('files1: ', files);
         dispatch(removeFileForDnD(dragItem.id));
         dispatch(addFile(
           dropResult.id,
@@ -85,8 +78,6 @@ const folderSource = {
           dragItem.contain,
           parseInt(dragItem.id, 10),
         ));
-      } else {
-        alert('It`s not allowed');
       }
     }
   },
@@ -110,7 +101,6 @@ function collectSource(connect, monitor) {
 }
 
 function collectTarget(connect, monitor) {
-  const isNull = monitor.getDropResult() === null;
   return {
     connectDropTarget: connect.dropTarget(),
     canDrop: monitor.canDrop(),
@@ -128,57 +118,66 @@ class Result extends Component {
     return isOver && canDrop ? '1px dashed gray' : '1px dashed white';
   }
   render() {
-    const { files, item, dispatch, connectDragSource, connectDropTarget, isDragging, canDrop, isOver } = this.props;
+    const {
+      item,
+      dispatch,
+      connectDragSource,
+      connectDropTarget,
+      isDragging,
+      canDrop,
+      isOver,
+      } = this.props;
     if (item !== undefined) {
       return connectDragSource(connectDropTarget(
         <div>
-        <Paper
-          key={item.id}
-          style={{
-          ...paper,
-          opacity: isDragging ? 0 : 1,
-          border: this.renderStyles(isOver, canDrop),
-          }}
-          zDepth={1}
-          >
-                    <span
-                      style={{
-                        position: 'absolute',
-                        textAlign: 'left',
-                        top: '5px',
-                        left: '10px',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                      }}
-                      >
-                    <Avatar
-                      size={32}
-                      backgroundColor={white}
-                      >
-                      <Link to={`/open/${item.id}`}>{item.kind === 'folder' ? folder : note}</Link>
-                    </Avatar>
-                    <Link to={item.kind === 'folder' ? `/open/${item.id}` : `/edit/${item.id}`}><span id={item.id}>{
-                      str_size(item.name, 'Roboto', 20) > 142 ? cut(item.name) : item.name
-                    }</span></Link>
-                      </span>
-          <Avatar
-            tooltip="Remove"
-            onClick={() => { dispatch(removeFile(item.id)); }}
-            size={15}
-            backgroundColor={black}
+          <Paper
+            key={item.id}
             style={{
-                        position: 'absolute',
-                        textAlign: 'right',
-                        top: '-7px',
-                        right: '-7px',
-                        cursor: 'pointer',
-                      }}
+              ...paper,
+              opacity: isDragging ? 0 : 1,
+              border: this.renderStyles(isOver, canDrop),
+            }}
+            zDepth={1}
+          >
+            <span
+              style={{
+                position: 'absolute',
+                textAlign: 'left',
+                top: '5px',
+                left: '10px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+              }}
             >
-            <ContentClear color={white}/>
-          </Avatar>
-        </Paper>
-          </div>
+              <Avatar
+                size={32}
+                backgroundColor={white}
+              >
+                <Link to={`/open/${item.id}`}>{item.kind === 'folder' ? folder : note}</Link>
+              </Avatar>
+              <Link to={item.kind === 'folder' ? `/open/${item.id}` : `/edit/${item.id}`}>
+                <span id={item.id}>
+                  {strSize(item.name, 'Roboto', 20) > 142 ? cut(item.name) : item.name}
+                </span></Link>
+            </span>
+            <Avatar
+              tooltip="Remove"
+              onClick={() => { dispatch(removeFile(item.id)); }}
+              size={15}
+              backgroundColor={black}
+              style={{
+                position: 'absolute',
+                textAlign: 'right',
+                top: '-7px',
+                right: '-7px',
+                cursor: 'pointer',
+              }}
+            >
+              <ContentClear color={white} />
+            </Avatar>
+          </Paper>
+        </div>,
       ));
     }
     return null;
@@ -186,16 +185,25 @@ class Result extends Component {
 }
 
 Result.propTypes = {
-  files: PropTypes.arrayOf(PropTypes.object).isRequired,
-  name: PropTypes.string.isRequired,
-  id: PropTypes.number.isRequired,
-  parentID: PropTypes.number.isRequired,
-  tags: PropTypes.arrayOf(PropTypes.string).isRequired,
-  kind: PropTypes.string.isRequired,
-  type: PropTypes.string.isRequired,
+  item: PropTypes.shape({
+    name: PropTypes.string,
+    id: PropTypes.number,
+    parentID: PropTypes.number,
+    visible: PropTypes.bool,
+    kind: PropTypes.string,
+    contain: PropTypes.string,
+    tags: PropTypes.array,
+  }).isRequired,
+  dispatch: PropTypes.func.isRequired,
+  connectDragSource: PropTypes.func.isRequired,
+  connectDropTarget: PropTypes.func.isRequired,
+  connectDragPreview: PropTypes.func.isRequired,
+  isDragging: PropTypes.bool.isRequired,
+  canDrop: PropTypes.bool.isRequired,
+  isOver: PropTypes.bool.isRequired,
 };
 
 export default flow(
   DragSource('dnd', folderSource, collectSource),
-  DropTarget('dnd', folderTarget, collectTarget)
+  DropTarget('dnd', folderTarget, collectTarget),
 )(Result);

@@ -29,7 +29,6 @@ const matches = (names, tags, text, type) => {
 };
 
 const Results = ({ files, results, type, dispatch }) => {
-  console.log('results: ', results);
   const matchInNames = results.matchInNames.length > 0 ?
     results.matchInNames.map(result => <Result files={files} item={result} dispatch={dispatch} type="names" key={result.id} {...result} />) :
     ' No';
@@ -57,6 +56,7 @@ Results.propTypes = {
     matchInText: PropTypes.array,
   }).isRequired,
   type: PropTypes.string.isRequired,
+  dispatch: PropTypes.func.isRequired,
 };
 
 export default Results;
