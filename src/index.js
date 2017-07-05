@@ -93,7 +93,7 @@ const store = createStore(reducers,
         kind: 'note',
         contain:
           'Hello!\n\n' +
-          'This app is built using Javascript, HTML, CSS, React.js, Redux, React DnD, React Router v4, Material UI and Node.js by Daniil Korogodsky.\n\n' +
+          'This app is built using Javascript, HTML, CSS, React.js, Redux, React DnD, React Router v4, Material UI and Node.js \nby Daniil Korogodsky.\n\n' +
           'My Github profile: https://github.com/danya296',
         tags: ['about', 'author', 'app'],
       },
