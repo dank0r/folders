@@ -84,6 +84,11 @@ const App = () => (
                     render={({ match }) => (<FileSystem opened={parseInt(match.params.id, 10)} />)}
                   />
                   <Route
+                    exact
+                    path="/edit/:id"
+                    render={({ match }) => (<FileSystem opened={parseInt(match.params.id, 10)} />)}
+                  />
+                  <Route
                     path="/"
                     render={() => (<FileSystem opened={0} />)}
                   />
