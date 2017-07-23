@@ -8,6 +8,7 @@ import SearchResults from '../containers/SearchResults';
 import Create from '../containers/Create';
 import Edit from '../containers/Edit';
 import Open from '../containers/Open';
+import Dialog from '../containers/Dialog';
 
 const Welcome = () => (
   <div style={{ fontSize: 30 }}>
@@ -71,9 +72,11 @@ const container = {
 
 const App = () => (
   <div>
+    <Dialog />
     <Router>
       <div style={container}>
         <table style={table}>
+          <tbody>
           <tr style={style}>
             <td style={td1}>
               <span>
@@ -133,6 +136,7 @@ const App = () => (
               </Switch>
             </td>
           </tr>
+          </tbody>
         </table>
       </div>
     </Router>

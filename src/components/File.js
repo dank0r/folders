@@ -3,10 +3,11 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { DragSource, DropTarget } from 'react-dnd';
 import IconButton from 'material-ui/IconButton';
+import CircularProgress from 'material-ui/CircularProgress';
 import flow from 'lodash/flow';
 import Edit from './Edit';
-import { addFile, toggleVisibility, removeFileForDnD, removeFile, newEditing, editFile as edit } from '../actions';
-import { note, openFolder, closeFolder, emptyFolder, createFile, deleteFile, editFile } from '../images';
+import { moveFile, showDialog, toggleVisibility, removeFile, newEditing, editFile as edit } from '../actions';
+import { note, openFolder, closeFolder, emptyFolder, createFile, deleteFile, editFile, refresh } from '../images';
 
 function strSize(text, fontfamily, fontsize) {
   const str = document.createTextNode(text);
@@ -54,15 +55,15 @@ const fileSource = {
     const { files, dispatch } = props;
     if (dropResult) {
       if (dropResult.kind === 'folder' && isAllowed(files, dragItem.id, dropResult)) {
-        dispatch(removeFileForDnD(dragItem.id));
-        dispatch(addFile(
-          dropResult.id,
-          dragItem.kind,
-          dragItem.tags,
-          dragItem.name,
-          dragItem.contain,
-          parseInt(dragItem.id, 10),
-        ));
+        if (files.filter(
+              f => f.parentID === dropResult.id)
+            .find(f => f.name === dragItem.name
+            && f.kind === dragItem.kind
+            && f.id !== dragItem.id)) {
+          dispatch(showDialog(dragItem.id, dropResult.id));
+        } else {
+          dispatch(moveFile(dragItem.id, dropResult.id));
+        }
       }
     }
   },
@@ -111,7 +112,7 @@ const icons = (files, f) => {
 };
 
 const style = {
-  fontSize: '15',
+  fontSize: 15,
   margin: '3px',
 };
 
@@ -148,11 +149,11 @@ class File extends Component {
           .find(f => f.name === dragItem.name
           && f.kind === dragItem.kind
           && f.id !== dragItem.id)) {
-        return 'red';
+        return '1px dashed red';
       }
-      return 'grey';
+      return '1px dashed grey';
     }
-    return 'white';
+    return '1px solid white';
   }
 
   render() {
@@ -182,8 +183,10 @@ class File extends Component {
           alignItems: 'center',
           opacity: isDragging ? 0 : 1,
           cursor: 'move',
-          border: `1px dashed ${this.renderStyles(isOver, canDrop, dragItem, files, f)}`,
+          border: this.renderStyles(isOver, canDrop, dragItem, files, f),
+          backgroundColor: f.isError ? '#F08080' : 'white',
         }}
+        key={f.id}
       >
         <span
           style={{
@@ -202,16 +205,18 @@ class File extends Component {
               }}
               >
                 <span style={style}>
-                  {f.id !== opened ?
+                  {!f.isError ? f.id !== opened ?
                     <Link to={f.kind === 'note' ? `/edit/${f.id}` : `/open/${f.id}`}>
                       {
                         strSize(f.name, 'Roboto', 20) > 142 ? cut(f.name) : f.name
                       }
                     </Link>
                   : strSize(f.name, 'Roboto', 20) > 142 ? cut(f.name) : f.name
+                    : this.state.opacity === '0' ? strSize(`Error: ${f.error.error}`, 'Roboto', 20) > 142 ? cut(`Error: ${f.error.error}`) : `Error: ${f.error.error}` : `Error: ${f.error.error}`
                   }
                 </span>
-
+                {!f.isLoading ?
+                  !f.isError ?
                 <span
                   className="buttons"
                   onMouseOut={this.mouseOut}
@@ -244,6 +249,20 @@ class File extends Component {
                     {deleteFile}
                   </IconButton>
                 </span>
+                    :
+                    <span className="buttons">
+                      <IconButton
+                        tooltip="Try again"
+                        tooltipPosition="bottom-left"
+                        onClick={() => { dispatch({ CALL_API: f.error.callAPI }); }}
+                        style={{ width: '30px', height: '30px', marginRight: '10px', marginBottom: '10px' }}
+                      >
+                        {refresh}
+                      </IconButton>
+                    </span>
+                :
+                  <span className="buttons" style={{ opacity: 1 }}><CircularProgress /></span>
+                }
               </span>
               :
               <Edit
@@ -263,6 +282,12 @@ class File extends Component {
   }
 }
 
+File.defaultProps = {
+  opened: null,
+  editing: null,
+  dragItem: null,
+};
+
 File.propTypes = {
   f: PropTypes.shape({
     name: PropTypes.string,
@@ -276,8 +301,8 @@ File.propTypes = {
   files: PropTypes.arrayOf(PropTypes.object).isRequired,
   space: PropTypes.string.isRequired,
   dispatch: PropTypes.func.isRequired,
-  opened: PropTypes.bool.isRequired,
-  editing: PropTypes.bool.isRequired,
+  opened: PropTypes.number,
+  editing: PropTypes.number,
   connectDragSource: PropTypes.func.isRequired,
   connectDropTarget: PropTypes.func.isRequired,
   connectDragPreview: PropTypes.func.isRequired,
@@ -292,7 +317,7 @@ File.propTypes = {
     kind: PropTypes.string,
     contain: PropTypes.string,
     tags: PropTypes.array,
-  }).isRequired,
+  }),
 };
 
 export default flow(

@@ -31,9 +31,9 @@ const validate = (value, props) => {
   return errors;
 };
 
-const renderTextField = ({ input, meta: { error, warning }, ...custom, hintText }) => (
+const renderTextField = ({ input, meta: { error, warning }, hintText, ...custom }) => (
   <TextField
-    hintlText={hintText}
+    hintText={hintText}
     errorText={error || warning}
     {...input}
     {...custom}
@@ -137,7 +137,11 @@ const CreatePage = (
 
 CreatePage.defaultProps = {
   id: null,
+  input: undefined,
+  name: undefined,
+  type: undefined,
 };
+
 
 CreatePage.propTypes = {
   id: PropTypes.number,
@@ -148,20 +152,28 @@ CreatePage.propTypes = {
   files: PropTypes.arrayOf(PropTypes.object).isRequired,
   handleSubmit: PropTypes.func.isRequired,
   pristine: PropTypes.bool.isRequired,
-  input: PropTypes.shape({}).isRequired,
-  name: PropTypes.string.isRequired,
-  type: PropTypes.string.isRequired,
+  input: PropTypes.shape({}),
+  name: PropTypes.string,
+  type: PropTypes.string,
+};
+
+renderTags.defaultProps = {
+  history: {},
 };
 
 renderTags.propTypes = {
   history: PropTypes.shape({
     push: PropTypes.func,
-  }).isRequired,
+  }),
   input: PropTypes.shape({
-    value: PropTypes.string,
+    value: PropTypes.arrayOf(PropTypes.string),
     onChange: PropTypes.func,
   }).isRequired,
   clearField: PropTypes.func.isRequired,
+};
+
+renderTextField.defaultProps = {
+  hintText: undefined,
 };
 
 renderTextField.propTypes = {
@@ -170,8 +182,7 @@ renderTextField.propTypes = {
     error: PropTypes.string,
     warning: PropTypes.string,
   }).isRequired,
-  custom: PropTypes.shape({}).isRequired,
-  hintText: PropTypes.string.isRequired,
+  hintText: PropTypes.string,
 };
 
 const Create = withRouter(CreatePage);

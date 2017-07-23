@@ -52,12 +52,18 @@ class Files extends Component {
     this.toggleClick = this.toggleClick.bind(this);
   }
 
+  componentDidMount() {
+    if(this.props.updateStore)
+      this.props.updateStore();
+  }
+
   toggleClick() {
     this.setState({ isClicked: !this.state.isClicked });
   }
 
   render() {
     const { files, opened, editing, dispatch } = this.props;
+    console.log('files: ', files);
     const label = {
       fontSize: 30,
     };
@@ -107,11 +113,17 @@ class Files extends Component {
   }
 }
 // \u21B3
+
+Files.defaultProps = {
+  editing: null,
+  opened: null,
+};
+
 Files.propTypes = {
   files: PropTypes.arrayOf(PropTypes.object).isRequired,
   dispatch: PropTypes.func.isRequired,
-  opened: PropTypes.number.isRequired,
-  editing: PropTypes.bool.isRequired,
+  opened: PropTypes.number,
+  editing: PropTypes.number,
 };
 
 export default Files;

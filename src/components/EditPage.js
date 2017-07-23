@@ -33,7 +33,7 @@ class EditPage extends Component {
   handleRequestDelete(tag, file) {
     this.setState({ tags: this.state.tags.filter(t => t !== tag) });
     this.props.dispatch(editFile(
-        file.id, this.state.name, this.state.contain, this.state.tags.filter(t => t !== tag),
+        file.id, file.name, file.contain, file.tags.filter(t => t !== tag),
       ));
   }
 
@@ -53,7 +53,6 @@ class EditPage extends Component {
     const { file, dispatch, files } = this.props;
     if (files.filter(f => f === file).length > 0) {
       return (
-        <form onSubmit={(e) => { e.preventDefault(); }}>
           <div>
             <span style={{ fontSize: 30 }}>EDIT</span><br /><br /><br />
             ID: {file.id}<br />
@@ -110,7 +109,6 @@ class EditPage extends Component {
               : null
             }
           </div>
-        </form>
       );
     }
     return (<div>Error! Wrong URL.</div>);

@@ -1,14 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import { createStore } from 'redux';
+import thunkMiddleware from 'redux-thunk';
+import { createStore, applyMiddleware } from 'redux';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import api from './middleware/api';
 import App from './components/App';
 import reducers from './reducers';
 import './index.css';
 
 injectTapEventPlugin();
+
+const middleware = [thunkMiddleware, api];
 
 const store = createStore(reducers,
   {
@@ -216,7 +220,13 @@ const store = createStore(reducers,
       },
     ],
     editing: null,
+    dialog: {
+      opened: false,
+      from: null,
+      to: null,
+    },
   },
+  applyMiddleware(...middleware),
 );
 
 const style = {

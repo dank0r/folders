@@ -64,7 +64,6 @@ const AddBar = ({ dispatch, toggleClick, invalid, pristine, name }) => (
           primary
         />
         <FlatButton
-          overlayStyle={{ width: 300 }}
           label="Cancel"
           secondary
           onTouchTap={toggleClick}
@@ -78,10 +77,14 @@ const AddBar = ({ dispatch, toggleClick, invalid, pristine, name }) => (
 renderTextField.propTypes = {
   input: PropTypes.shape({}).isRequired,
   meta: PropTypes.shape({
-    error: PropTypes.string.isRequired,
+    error: PropTypes.string,
   }).isRequired,
   hintText: PropTypes.string.isRequired,
   onKeyPress: PropTypes.func.isRequired,
+};
+
+AddBar.defaultProps = {
+  name: undefined,
 };
 
 AddBar.propTypes = {
@@ -89,7 +92,7 @@ AddBar.propTypes = {
   toggleClick: PropTypes.func.isRequired,
   invalid: PropTypes.bool.isRequired,
   pristine: PropTypes.bool.isRequired,
-  name: PropTypes.string.isRequired,
+  name: PropTypes.string,
 };
 
 const Form = reduxForm({

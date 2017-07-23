@@ -53,7 +53,7 @@ const SyncNameField = ({ handleSubmit, dispatch, file, files }) => (
 renderTextField.propTypes = {
   input: PropTypes.shape({}).isRequired,
   meta: PropTypes.shape({
-    error: PropTypes.string.isRequired,
+    error: PropTypes.string,
   }).isRequired,
   floatingLabelText: PropTypes.string.isRequired,
 };

@@ -52,7 +52,7 @@ class SyncTagsField extends Component {
 renderTextField.propTypes = {
   input: PropTypes.shape({}).isRequired,
   meta: PropTypes.shape({
-    error: PropTypes.string.isRequired,
+    error: PropTypes.string,
   }).isRequired,
   floatingLabelText: PropTypes.string.isRequired,
   onKeyPress: PropTypes.func.isRequired,

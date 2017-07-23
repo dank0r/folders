@@ -89,6 +89,10 @@ const OpenFile = ({ file, files, dispatch }) => {
   return (<div>Error 404. File not found.</div>);
 };
 
+OpenFile.defaultProps = {
+  file: undefined,
+};
+
 OpenFile.propTypes = {
   file: PropTypes.shape({
     name: PropTypes.string,
@@ -98,7 +102,7 @@ OpenFile.propTypes = {
     kind: PropTypes.string,
     contain: PropTypes.string,
     tags: PropTypes.array,
-  }).isRequired,
+  }),
   files: PropTypes.arrayOf(PropTypes.object).isRequired,
   dispatch: PropTypes.func.isRequired,
 };

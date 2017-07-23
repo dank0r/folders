@@ -8,7 +8,7 @@ import { white, black } from 'material-ui/styles/colors';
 import { DragSource, DropTarget } from 'react-dnd';
 import flow from 'lodash/flow';
 import { note, folder } from '../images';
-import { removeFileForDnD, removeFile, addFile } from '../actions';
+import { removeFile, moveFile } from '../actions';
 
 const paper = {
   height: 40,
@@ -69,15 +69,7 @@ const folderSource = {
     const { files, dispatch } = props;
     if (dropResult) {
       if (dropResult.kind === 'folder' && isAllowed(files, dragItem.id, dropResult)) {
-        dispatch(removeFileForDnD(dragItem.id));
-        dispatch(addFile(
-          dropResult.id,
-          dragItem.kind,
-          dragItem.tags,
-          dragItem.name,
-          dragItem.contain,
-          parseInt(dragItem.id, 10),
-        ));
+        dispatch(moveFile(dragItem.id, dropResult.id));
       }
     }
   },
@@ -162,7 +154,6 @@ class Result extends Component {
                 </span></Link>
             </span>
             <Avatar
-              tooltip="Remove"
               onClick={() => { dispatch(removeFile(item.id)); }}
               size={15}
               backgroundColor={black}

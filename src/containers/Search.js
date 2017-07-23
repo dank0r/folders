@@ -19,7 +19,7 @@ const validate = (value) => {
 
 const renderTextField = ({ input, meta: { error }, ...custom, hintText }) => (
   <TextField
-    hintlText={hintText}
+    hintText={hintText}
     errorText={error}
     {...input}
     {...custom}
@@ -74,15 +74,19 @@ const Search = ({ history, query, type, pristine, invalid }) => (
 renderTextField.propTypes = {
   input: PropTypes.shape({}).isRequired,
   meta: PropTypes.shape({
-    error: PropTypes.string.isRequired,
+    error: PropTypes.string,
   }).isRequired,
   hintText: PropTypes.string.isRequired,
 };
 
+Search.defaultProps = {
+  query: undefined,
+  type: undefined,
+};
 
 Search.propTypes = {
-  query: PropTypes.string.isRequired,
-  type: PropTypes.number.isRequired,
+  query: PropTypes.string,
+  type: PropTypes.string,
   history: PropTypes.shape({
     push: PropTypes.func,
   }).isRequired,
